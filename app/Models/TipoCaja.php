@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Tipo extends Model
+class TipoCaja extends Model
 {
     use HasFactory;
 
@@ -15,6 +15,6 @@ class Tipo extends Model
      * @var array
      */
     protected $fillable = [
-        'nombre',
+        'nombre', 'precio'
     ];
 }

@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EstadoSeeder::class);
         $this->call(PasatiempoSeeder::class);
         $this->call(PreferenciaSeeder::class);
-        $this->call(TipoSeeder::class);
+        $this->call(TipoCajaSeeder::class);
         $this->call(MascotaSeeder::class);
         $this->call(TipoPersonaSeeder::class);
         $this->call(MotivoSeeder::class);

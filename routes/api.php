@@ -14,6 +14,9 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\DetalleTicketController;
 use App\Http\Controllers\MascotaController;
 use App\Http\Controllers\PreferenciaController;
+use App\Http\Controllers\MotivoController;
+use App\Http\Controllers\TipoPersonaController;
+use App\Http\Controllers\TipoCajaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,3 +57,6 @@ Route::resource('tickets', TicketController::class);
 Route::resource('detalleticket', DetalleTicketController::class);
 Route::resource('mascotas', MascotaController::class);
 Route::resource('preferencias', PreferenciaController::class);
+Route::resource('motivos', MotivoController::class);
+Route::resource('tipopersonas', TipoPersonaController::class);
+Route::resource('tipocajas', TipoCajaController::class);

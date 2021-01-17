@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\TipoCaja;
 
-class ticketMotivoController extends Controller
+class TipoCajaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,7 +14,12 @@ class ticketMotivoController extends Controller
      */
     public function index()
     {
-        //
+        $tipoCajas =  TipoCaja::all();
+        return response()->json([
+            'success' => true,
+            'message' => "done",
+            'data' => ['tipoCajas'=>$tipoCajas]
+        ], 200);
     }
 
     /**

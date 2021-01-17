@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Tipo;
+use App\Models\TipoCaja;
 
-class TipoSeeder extends Seeder
+class TipoCajaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,19 +14,19 @@ class TipoSeeder extends Seeder
      */
     public function run()
     {
-        Tipo::create([
+        TipoCaja::create([
             'nombre' => 'Caja Light',
             'precio' => 29990
         ]);
-        Tipo::create([
+        TipoCaja::create([
             'nombre' => 'Caja Medium',
             'precio' => 39990
         ]);
-        Tipo::create([
+        TipoCaja::create([
             'nombre' => 'Caja Premium',
             'precio' => 59990
         ]);
-        Tipo::create([
+        TipoCaja::create([
             'nombre' => 'Edición Especial',
             'precio' => 12990
         ]);

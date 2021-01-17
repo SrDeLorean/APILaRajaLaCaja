@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Validator;
+
 use App\Models\Ticket;
 use App\Models\TicketBrindi;
 use App\Models\TicketCategoria;
 use App\Models\TicketPasatiempo;
-use App\Models\TicketReferencia;
+use App\Models\TicketPreferencia;
 use App\Models\TicketMascota;
-use App\Models\TicketMotivo;
-use App\Models\TicketTipoPersona;
 
 class TicketController extends Controller
 {
@@ -41,29 +41,17 @@ class TicketController extends Controller
             }
             $ticket->pasatiempos = $pasatiempos;
 
-            $referencias = TicketReferencia::where('ticket', $ticket->id)->get();
-            foreach($referencias as $referencia){
-                $referencia->getReferencia->nombre;
+            $preferencias = TicketPreferencia::where('ticket', $ticket->id)->get();
+            foreach($preferencias as $preferencia){
+                $preferencia->getPreferencia->nombre;
             }
-            $ticket->referencias = $referencias;
+            $ticket->preferencias = $preferencias;
 
             $mascotas = TicketMascota::where('ticket', $ticket->id)->get();
             foreach($mascotas as $mascota){
                 $mascota->getMascota->nombre;
             }
             $ticket->mascotas = $mascotas;
-
-            $motivos = TicketMotivo::where('ticket', $ticket->id)->get();
-            foreach($motivos as $motivo){
-                $motivo->getMotivo->nombre;
-            }
-            $ticket->motivos = $motivos;
-
-            $tipoPersonas = TicketTipoPersona::where('ticket', $ticket->id)->get();
-            foreach($tipoPersonas as $tipoPersona){
-                $tipoPersona->getTipoPersona->nombre;
-            }
-            $ticket->tipoPersonas = $tipoPersonas;
         }
         return response()->json([
             'success' => true,
@@ -90,7 +78,7 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        $entradas = $request->only('email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega' , 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipo' , 'mascota');
+        $entradas = $request->only('email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipoCaja', 'categorias', 'pasatiempos', 'brindis', 'preferencias', 'mascotas' );
         $validator = Validator::make($entradas, [
             'email' => ['required', 'string'],
             'receptor' => [' required', 'string'],
@@ -99,16 +87,22 @@ class TicketController extends Controller
             'color' => [' required', 'string'],
             'excepcion' => [' required', 'string'],
             'pyme' => [' required', 'boolean'],
-            'foto' => [' required', 'string'],
+            'foto' => [' nullable', 'string'],
             'mensaje' => [' required', 'string'],
             'entrega' => [' required', 'date'],
+            'region' => [' required', 'string'],
+            'comuna' => [' required', 'string'],
             'direccion' => [' required', 'string'],
             'telefono' => [' required', 'string'],
             'tipoPersona' => [' required', 'numeric'],
             'motivo' => [' required', 'numeric'],
             'estado' => [' required', 'numeric'],
-            'tipo' => ['required', 'numeric'],
-            'mascota' => [' required', 'numeric']
+            'tipoCaja' => ['required', 'numeric'],
+            'categorias' => ['nullable'],
+            'pasatiempos' => ['nullable'],
+            'brindis' => ['nullable'],
+            'preferencias' => ['nullable'],
+            'mascotas' => ['nullable']
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -130,13 +124,45 @@ class TicketController extends Controller
             $ticket->foto=$entradas['foto'];
             $ticket->mensaje=$entradas['mensaje'];
             $ticket->entrega=$entradas['entrega'];
+            $ticket->region=$entradas['region'];
+            $ticket->comuna=$entradas['comuna'];
             $ticket->direccion=$entradas['direccion'];
             $ticket->telefono=$entradas['telefono'];
             $ticket->motivo=$entradas['motivo'];
             $ticket->estado=$entradas['estado'];
-            $ticket->tipo=$entradas['tipo'];
-            $ticket->mascota=$entradas['mascota'];
+            $ticket->tipoCaja=$entradas['tipoCaja'];
+            $ticket->tipoPersona=$entradas['tipoPersona'];
             $ticket->save();
+            foreach($entradas['categorias'] as $categoria){
+                $ticketCategoria = new TicketCategoria();
+                $ticketCategoria->ticket = $ticket->id;
+                $ticketCategoria->categoria = $categoria;
+                $ticketCategoria->save();
+            }
+            foreach($entradas['pasatiempos'] as $pasatiempo){
+                $ticketPasatiempo = new TicketPasatiempo();
+                $ticketPasatiempo->ticket = $ticket->id;
+                $ticketPasatiempo->pasatiempo = $pasatiempo;
+                $ticketPasatiempo->save();
+            }
+            foreach($entradas['brindis'] as $brindi){
+                $ticketBrindi = new TicketBrindi();
+                $ticketBrindi->ticket = $ticket->id;
+                $ticketBrindi->brindi = $brindi;
+                $ticketBrindi->save();
+            }
+            foreach($entradas['preferencias'] as $preferencia){
+                $ticketPreferencia = new TicketPreferencia();
+                $ticketPreferencia->ticket = $ticket->id;
+                $ticketPreferencia->preferencia = $preferencia;
+                $ticketPreferencia->save();
+            }
+            foreach($entradas['mascotas'] as $mascota){
+                $ticketMascota = new TicketMascota();
+                $ticketMascota->ticket = $ticket->id;
+                $ticketMascota->mascota = $mascota;
+                $ticketMascota->save();
+            }
             return response()->json([
                 'success' => true,
                 'message' => "done",
@@ -183,7 +209,7 @@ class TicketController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $entradas = $request->only('email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega' , 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipo' , 'mascota');
+        $entradas = $request->only('email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega' , 'region', 'comuna', 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipo' , 'mascota');
         $validator = Validator::make($entradas, [
             'email' => ['nullable', 'string'],
             'receptor' => [' nullable', 'string'],
@@ -195,13 +221,20 @@ class TicketController extends Controller
             'foto' => [' nullable', 'string'],
             'mensaje' => [' nullable', 'string'],
             'entrega' => [' nullable', 'date'],
+            'region' => [' nullable', 'string'],
+            'comuna' => [' nullable', 'string'],
             'direccion' => [' nullable', 'string'],
             'telefono' => [' nullable', 'string'],
             'tipoPersona' => [' nullable', 'numeric'],
             'motivo' => [' nullable', 'numeric'],
             'estado' => [' nullable', 'numeric'],
             'tipo' => ['nullable', 'numeric'],
-            'mascota' => [' nullable', 'numeric']
+            'mascota' => [' nullable', 'numeric'],
+            'categorias' => ['nullable'],
+            'pasatiempos' => ['nullable'],
+            'brindis' => ['nullable'],
+            'preferencias' => ['nullable'],
+            'mascotas' => ['nullable']
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -230,11 +263,13 @@ class TicketController extends Controller
             $ticket->foto=$entradas['foto'];
             $ticket->mensaje=$entradas['mensaje'];
             $ticket->entrega=$entradas['entrega'];
+            $ticket->region=$entradas['region'];
+            $ticket->comuna=$entradas['comuna'];
             $ticket->direccion=$entradas['direccion'];
             $ticket->telefono=$entradas['telefono'];
             $ticket->motivo=$entradas['motivo'];
             $ticket->estado=$entradas['estado'];
-            $ticket->tipo=$entradas['tipo'];
+            $ticket->tipoCaja=$entradas['tipoCaja'];
             $ticket->mascota=$entradas['mascota'];
             $ticket->save();
             return response()->json([

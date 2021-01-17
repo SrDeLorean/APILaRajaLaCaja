@@ -22,16 +22,22 @@ class CreateTicketsTable extends Migration
             $table->string('color');
             $table->string('excepcion');
             $table->boolean('pyme');
-            $table->string('foto')->nulleable();
+            $table->string('foto')->nullable();
             $table->string('mensaje');
             $table->date('entrega');
+            $table->string('region');
+            $table->string('comuna');
             $table->string('direccion');
             $table->string('telefono');
 
+            $table->bigInteger('motivo')->unsigned();
+            $table->foreign('motivo')->references('id')->on('motivos');
             $table->bigInteger('estado')->unsigned();
             $table->foreign('estado')->references('id')->on('estados');
-            $table->bigInteger('tipo')->unsigned();
-            $table->foreign('tipo')->references('id')->on('tipos');
+            $table->bigInteger('tipoCaja')->unsigned();
+            $table->foreign('tipoCaja')->references('id')->on('tipo_cajas');
+            $table->bigInteger('tipoPersona')->unsigned();
+            $table->foreign('tipoPersona')->references('id')->on('tipo_personas');
             
             $table->timestamps();
         });
