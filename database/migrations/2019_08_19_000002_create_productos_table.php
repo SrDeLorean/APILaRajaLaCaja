@@ -19,7 +19,7 @@ class CreateProductosTable extends Migration
             $table->integer("cantidad");
             $table->integer("precioCompra");
             $table->integer("precioVenta");
-            $table->string("foto");
+            $table->string("foto")->nullable();
             $table->timestamps();
         });
     }

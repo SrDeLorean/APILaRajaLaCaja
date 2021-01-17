@@ -128,6 +128,7 @@ class ProductoController extends Controller
                 $productoBrindi->brindi = $brindi;
                 $productoBrindi->save();
             }
+
             foreach($entradas['preferencias'] as $preferencia){
                 $productoPreferencia = new ProductoPreferencia();
                 $productoPreferencia->producto = $producto->id;
@@ -153,7 +154,7 @@ class ProductoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => "Error en la base de datos",
-                'data' => ['error'=>$ex]
+                'data' => ['data'=>$ex]
             ], 409);
         }
     }
