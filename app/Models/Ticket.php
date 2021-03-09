@@ -10,7 +10,7 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'estado', 'tipoCaja', 'tipoPersona' ,' motivo'
+        'email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'estado', 'tipoCaja', 'tipoPersona' ,' motivo', 'cantidadProductos', 'valor'
     ];
 
     public function getMotivo()
@@ -23,8 +23,8 @@ class Ticket extends Model
         return $this->belongsTo(Estado::class, 'estado');
     }   
 
-    public function getTipo()
+    public function getTipoCaja()
     {
-        return $this->belongsTo(Tipo::class, 'tipo');
+        return $this->belongsTo(TipoCaja::class, 'tipoCaja');
     }  
 }

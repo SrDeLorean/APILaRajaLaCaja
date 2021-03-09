@@ -5,12 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 
+use App\Models\TipoCaja;
+use App\Models\Producto;
+use App\Models\DetalleTicket;
+
 use App\Models\Ticket;
 use App\Models\TicketBrindi;
 use App\Models\TicketCategoria;
 use App\Models\TicketPasatiempo;
 use App\Models\TicketPreferencia;
 use App\Models\TicketMascota;
+
+use App\Models\ProductoBrindi;
+use App\Models\ProductoCategoria;
+use App\Models\ProductoPasatiempo;
+use App\Models\ProductoPreferencia;
+use App\Models\ProductoMascota;
 
 class TicketController extends Controller
 {
@@ -23,6 +33,8 @@ class TicketController extends Controller
     {
         $tickets =  Ticket::all();
         foreach($tickets as $ticket){
+            $ticket->getTipoCaja->nombre;
+            $ticket->getEstado->nombre;
             $categorias = TicketCategoria::where('ticket', $ticket->id)->get();
             foreach($categorias as $categoria){
                 $categoria->getCategoria->nombre;
@@ -52,6 +64,12 @@ class TicketController extends Controller
                 $mascota->getMascota->nombre;
             }
             $ticket->mascotas = $mascotas;
+
+            $detalleTickets = DetalleTicket::where('ticket', $ticket->id)->get();
+            foreach($detalleTickets as $detalleTicket){
+                $detalleTicket->getProducto->nombre;
+            }
+            $ticket->detalleTickets = $detalleTickets;
         }
         return response()->json([
             'success' => true,
@@ -131,42 +149,148 @@ class TicketController extends Controller
             $ticket->motivo=$entradas['motivo'];
             $ticket->estado=$entradas['estado'];
             $ticket->tipoCaja=$entradas['tipoCaja'];
+            $ticket->cantidadProducto=0;
+            $ticket->valor=0;
             $ticket->tipoPersona=$entradas['tipoPersona'];
             $ticket->save();
+
+            $listaProductos= [];
+
             foreach($entradas['categorias'] as $categoria){
                 $ticketCategoria = new TicketCategoria();
                 $ticketCategoria->ticket = $ticket->id;
                 $ticketCategoria->categoria = $categoria;
                 $ticketCategoria->save();
+
+                $productos = ProductoCategoria::where('categoria', $categoria)->get();
+                if(count($productos)!=0){
+                    foreach($productos as $producto){
+                        if(array_key_exists($producto->producto, $listaProductos)){
+                            $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
+                        }else{
+                            $listaProductos[$producto->producto]= 1;
+                        }
+                    }
+                }
             }
             foreach($entradas['pasatiempos'] as $pasatiempo){
                 $ticketPasatiempo = new TicketPasatiempo();
                 $ticketPasatiempo->ticket = $ticket->id;
                 $ticketPasatiempo->pasatiempo = $pasatiempo;
                 $ticketPasatiempo->save();
+                
+                $productos = ProductoPasatiempo::where('pasatiempo', $pasatiempo)->get();
+                if(count($productos)!=0){
+                    foreach($productos as $producto){
+                        if(array_key_exists($producto->producto, $listaProductos)){
+                            $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
+                        }else{
+                            $listaProductos[$producto->producto]= 1;
+                        }
+                    }
+                }
             }
             foreach($entradas['brindis'] as $brindi){
                 $ticketBrindi = new TicketBrindi();
                 $ticketBrindi->ticket = $ticket->id;
                 $ticketBrindi->brindi = $brindi;
                 $ticketBrindi->save();
+
+                $productos = ProductoBrindi::where('brindi', $brindi)->get();
+                if(count($productos)!=0){
+                    foreach($productos as $producto){
+                        if(array_key_exists($producto->producto, $listaProductos)){
+                            $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
+                        }else{
+                            $listaProductos[$producto->producto]= 1;
+                        }
+                    }
+                }
             }
             foreach($entradas['preferencias'] as $preferencia){
                 $ticketPreferencia = new TicketPreferencia();
                 $ticketPreferencia->ticket = $ticket->id;
                 $ticketPreferencia->preferencia = $preferencia;
                 $ticketPreferencia->save();
+
+                $productos = ProductoPreferencia::where('preferencia', $preferencia)->get();
+                if(count($productos)!=0){
+                    foreach($productos as $producto){
+                        if(array_key_exists($producto->producto, $listaProductos)){
+                            $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
+                        }else{
+                            $listaProductos[$producto->producto]= 1;
+                        }
+                    }
+                }
             }
             foreach($entradas['mascotas'] as $mascota){
                 $ticketMascota = new TicketMascota();
                 $ticketMascota->ticket = $ticket->id;
                 $ticketMascota->mascota = $mascota;
                 $ticketMascota->save();
+
+                $productos = ProductoMascota::where('mascota', $mascota)->get();
+                if(count($productos)!=0){
+                    foreach($productos as $producto){
+                        if(array_key_exists($producto->producto, $listaProductos)){
+                            $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
+                        }else{
+                            $listaProductos[$producto->producto]= 1;
+                        }
+                    }
+                }
             }
+            arsort($listaProductos);
+            $idProductos = array_keys($listaProductos);
+            $caja = TipoCaja::where('id', $entradas['tipoCaja'])->get();
+            $total = 0;
+            $cantidad = 0;
+            $cantidadTotal = 0;
+            
+            foreach($idProductos as $producto){
+                $dato = Producto::where('id', $producto)->get();
+                if($dato[0]->precioVenta>5000){
+                    $cantidad = 1;
+                }else{
+                    $cantidad = rand(1, 3);
+                }
+                if($dato[0]->cantidad<=$cantidad){
+                    if($dato[0]->cantidad<1){
+                        $cantidad=0;
+                    }else{
+                        $dato[0]->cantidad=$cantidad;
+                    }
+                }
+                if($cantidad!=0){
+                    if($caja[0]->precio>=$total+$dato[0]->precioVenta*$cantidad){
+                        $detalleTicket = new DetalleTicket();
+                        $detalleTicket->ticket = $ticket->id;
+                        $detalleTicket->producto = $dato[0]->id;
+                        $detalleTicket->cantidad = $cantidad;
+                        $detalleTicket->precio = $dato[0]->precioVenta;
+                        $detalleTicket->total = $dato[0]->precioVenta*$cantidad;
+                        $total = $total+$detalleTicket->total;
+                        $cantidadTotal = $cantidadTotal+ $cantidad;
+                        $detalleTicket->save();    
+                        $dato[0]->cantidad=$dato[0]->cantidad-$cantidad;
+                        $dato[0]->save();
+                    }
+                }
+                
+                
+            }
+            $ticket->valor= $total;
+            $ticket->cantidadProducto= $cantidadTotal;
+            $ticket->save();
             return response()->json([
                 'success' => true,
                 'message' => "done",
-                'data' => ['ticket'=>$ticket]
+                'data' => ['ticket'=>$ticket,
+                            '$listaProductos'=>$listaProductos,
+                            '$idProductos'=>$idProductos,
+                
+                ]
             ], 200);
         //----- Mecanismos anticaidas y reporte de errores -----
         }catch(\Illuminate\Database\QueryException $ex){ 

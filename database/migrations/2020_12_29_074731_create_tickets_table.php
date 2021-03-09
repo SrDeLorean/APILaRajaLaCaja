@@ -29,6 +29,8 @@ class CreateTicketsTable extends Migration
             $table->string('comuna');
             $table->string('direccion');
             $table->string('telefono');
+            $table->integer('valor');
+            $table->integer('cantidadProducto');
 
             $table->bigInteger('motivo')->unsigned();
             $table->foreign('motivo')->references('id')->on('motivos');
