@@ -67,7 +67,7 @@ class TicketController extends Controller
 
             $detalleTickets = DetalleTicket::where('ticket', $ticket->id)->get();
             foreach($detalleTickets as $detalleTicket){
-                $detalleTicket->getProducto->nombre;
+                $detalleTicket->getProducto;
             }
             $ticket->detalleTickets = $detalleTickets;
         }
@@ -310,7 +310,58 @@ class TicketController extends Controller
      */
     public function show($id)
     {
-        //
+        $tickets =  Ticket::where('id', $id)->get();
+        if(count($tickets)==0){
+            return response()->json([
+                'success' => true,
+                'message' => "done",
+                'data' => ['tickets'=> "fff"]
+            ], 200);
+        }
+        $ticket = $tickets[0];
+        $ticket->getTipoCaja->nombre;
+        $ticket->getEstado->nombre;
+        $categorias = TicketCategoria::where('ticket', $ticket->id)->get();
+        foreach($categorias as $categoria){
+            $categoria->getCategoria->nombre;
+        }
+        $ticket->categorias = $categorias;
+
+        $brindis = TicketBrindi::where('ticket', $ticket->id)->get();
+        foreach($brindis as $brindi){
+            $brindi->getBrindi->nombre;
+        }
+        $ticket->brindis = $brindis;
+
+        $pasatiempos = TicketPasatiempo::where('ticket', $ticket->id)->get();
+        foreach($pasatiempos as $pasatiempo){
+            $pasatiempo->getPasatiempo->nombre;
+        }
+        $ticket->pasatiempos = $pasatiempos;
+
+        $preferencias = TicketPreferencia::where('ticket', $ticket->id)->get();
+        foreach($preferencias as $preferencia){
+            $preferencia->getPreferencia->nombre;
+        }
+        $ticket->preferencias = $preferencias;
+
+        $mascotas = TicketMascota::where('ticket', $ticket->id)->get();
+        foreach($mascotas as $mascota){
+            $mascota->getMascota->nombre;
+        }
+        $ticket->mascotas = $mascotas;
+
+        $detalleTickets = DetalleTicket::where('ticket', $ticket->id)->get();
+        foreach($detalleTickets as $detalleTicket){
+            $detalleTicket->getProducto;
+        }
+        $ticket->detalleTickets = $detalleTickets;
+        
+        return response()->json([
+            'success' => true,
+            'message' => "done",
+            'data' => ['ticket'=>$ticket]
+        ], 200);
     }
 
     /**
