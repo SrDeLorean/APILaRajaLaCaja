@@ -13,12 +13,12 @@ class CreateTicketPasaTiemposTable extends Migration
      */
     public function up()
     {
-        Schema::create('ticket_pasa_tiempos', function (Blueprint $table) {
+        Schema::create('ticket_pasatiempos', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('ticket')->unsigned();
             $table->foreign('ticket')->references('id')->on('tickets');
-            $table->bigInteger('pasaTiempo')->unsigned();
-            $table->foreign('pasaTiempo')->references('id')->on('pasatiempos');
+            $table->bigInteger('pasatiempo')->unsigned();
+            $table->foreign('pasatiempo')->references('id')->on('pasatiempos');
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class ticketPasatiempoController extends Controller
+class TicketPasatiempoController extends Controller
 {
     /**
      * Display a listing of the resource.

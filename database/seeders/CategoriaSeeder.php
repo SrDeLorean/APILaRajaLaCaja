@@ -18,7 +18,7 @@ class CategoriaSeeder extends Seeder
             'nombre' => 'Rockets'
         ]);
         Categoria::create([
-            'nombre' => 'Carrete@'
+            'nombre' => 'Carrete'
         ]);
         Categoria::create([
             'nombre' => 'Trabajolic@'

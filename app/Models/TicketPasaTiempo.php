@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TicketPasaTiempo extends Model
+class TicketPasatiempo extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'ticket','pasaTiempo',
+        'ticket','pasatiempo',
     ];
 
     public function getTicket()
@@ -18,8 +18,8 @@ class TicketPasaTiempo extends Model
         return $this->belongsTo(Ticket::class, 'ticket');
     }  
 
-    public function getPasaTiempo()
+    public function getPasatiempo()
     {
-        return $this->belongsTo(PasaTiempo::class, 'pasaTiempo');
+        return $this->belongsTo(Pasatiempo::class, 'pasatiempo');
     }
 }

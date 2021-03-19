@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\PasaTiempo;
+use App\Models\Pasatiempo;
 
 class PasatiempoController extends Controller
 {
@@ -14,7 +14,7 @@ class PasatiempoController extends Controller
      */
     public function index()
     {
-        $pasatiempos =  PasaTiempo::all();
+        $pasatiempos =  Pasatiempo::all();
         return response()->json([
             'success' => true,
             'message' => "done",

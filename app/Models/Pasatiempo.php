@@ -15,6 +15,6 @@ class Pasatiempo extends Model
      * @var array
      */
     protected $fillable = [
-        'nombre',
+        'nombre'
     ];
 }
