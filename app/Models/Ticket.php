@@ -10,7 +10,7 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'estado', 'tipoCaja', 'tipoPersona' ,' motivo', 'cantidadProductos', 'valor'
+        'email', 'receptor', 'emisor', 'edad', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'estado', 'tipoCaja', 'tipoPersona' ,' motivo', 'cantidadProductos', 'precioCompra', 'precioVenta'
     ];
 
     public function getMotivo()

@@ -10,7 +10,7 @@ class DetalleTicket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'ticket', 'producto', 'cantidad', 'precio', 'total'
+        'ticket', 'producto', 'cantidad', 'precioCompra', 'precioVenta'
     ];
 
     /**

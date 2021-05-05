@@ -96,12 +96,13 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        $entradas = $request->only('email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipoCaja', 'categorias', 'pasatiempos', 'brindis', 'preferencias', 'mascotas' );
+        $entradas = $request->only('email', 'receptor', 'emisor', 'edad', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega', 'region', 'comuna' , 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipoCaja', 'categorias', 'pasatiempos', 'brindis', 'preferencias', 'mascotas' );
         $validator = Validator::make($entradas, [
             'email' => ['required', 'string'],
             'receptor' => [' required', 'string'],
             'emisor' => ['required', 'string'],
-            'nacimiento' => [' required', 'date'],
+            'edad' => [' nullable', 'numeric'],
+            'nacimiento' => [' nullable', 'date'],
             'color' => [' required', 'string'],
             'excepcion' => [' required', 'string'],
             'pyme' => [' required', 'boolean'],
@@ -135,6 +136,7 @@ class TicketController extends Controller
             $ticket->email=$entradas['email'];
             $ticket->receptor=$entradas['receptor'];
             $ticket->emisor=$entradas['emisor'];
+            $ticket->edad=$entradas['edad'];
             $ticket->nacimiento=$entradas['nacimiento'];
             $ticket->color=$entradas['color'];
             $ticket->excepcion=$entradas['excepcion'];
@@ -150,7 +152,8 @@ class TicketController extends Controller
             $ticket->estado=$entradas['estado'];
             $ticket->tipoCaja=$entradas['tipoCaja'];
             $ticket->cantidadProducto=0;
-            $ticket->valor=0;
+            $ticket->precioCompra=0;
+            $ticket->precioVenta=0;
             $ticket->tipoPersona=$entradas['tipoPersona'];
             $ticket->save();
 
@@ -247,6 +250,8 @@ class TicketController extends Controller
             $total = 0;
             $cantidad = 0;
             $cantidadTotal = 0;
+            $totalVenta = 0;
+            $totalCompra = 0;
             
             foreach($idProductos as $producto){
                 $dato = Producto::where('id', $producto)->get();
@@ -268,9 +273,10 @@ class TicketController extends Controller
                         $detalleTicket->ticket = $ticket->id;
                         $detalleTicket->producto = $dato[0]->id;
                         $detalleTicket->cantidad = $cantidad;
-                        $detalleTicket->precio = $dato[0]->precioVenta;
-                        $detalleTicket->total = $dato[0]->precioVenta*$cantidad;
-                        $total = $total+$detalleTicket->total;
+                        $detalleTicket->precioCompra = $dato[0]->precioCompra;
+                        $detalleTicket->precioVenta = $dato[0]->precioVenta;
+                        $totalVenta= $totalVenta+$dato[0]->precioVenta*$cantidad;
+                        $totalCompra = $totalCompra+$dato[0]->precioCompra*$cantidad;
                         $cantidadTotal = $cantidadTotal+ $cantidad;
                         $detalleTicket->save();    
                         $dato[0]->cantidad=$dato[0]->cantidad-$cantidad;
@@ -280,7 +286,8 @@ class TicketController extends Controller
                 
                 
             }
-            $ticket->valor= $total;
+            $ticket->precioVenta= $totalVenta;
+            $ticket->precioCompra= $totalCompra;
             $ticket->cantidadProducto= $cantidadTotal;
             $ticket->save();
             return response()->json([
@@ -315,7 +322,7 @@ class TicketController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "done",
-                'data' => ['tickets'=> "fff"]
+                'data' => ['tickets'=> null]
             ], 200);
         }
         $ticket = $tickets[0];
@@ -384,11 +391,12 @@ class TicketController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $entradas = $request->only('email', 'receptor', 'emisor', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega' , 'region', 'comuna', 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipo' , 'mascota');
+        $entradas = $request->only('email', 'receptor', 'emisor', 'edad', 'nacimiento', 'color', 'excepcion' , 'pyme', 'foto' , 'mensaje' , 'entrega' , 'region', 'comuna', 'direccion' , 'telefono' , 'tipoPersona' , 'motivo' , 'estado', 'tipo' , 'mascota');
         $validator = Validator::make($entradas, [
             'email' => ['nullable', 'string'],
             'receptor' => [' nullable', 'string'],
             'emisor' => ['nullable', 'string'],
+            'edad' => [' nullable', 'numeric'],
             'nacimiento' => [' nullable', 'date'],
             'color' => [' nullable', 'string'],
             'excepcion' => [' nullable', 'string'],
@@ -431,6 +439,7 @@ class TicketController extends Controller
             $ticket->email=$entradas['email'];
             $ticket->receptor=$entradas['receptor'];
             $ticket->emisor=$entradas['emisor'];
+            $ticket->edad=$entradas['edad'];
             $ticket->nacimiento=$entradas['nacimiento'];
             $ticket->color=$entradas['color'];
             $ticket->excepcion=$entradas['excepcion'];
@@ -510,6 +519,9 @@ class TicketController extends Controller
             if(!array_key_exists ("emisor" , $entradas)){
                 $entradas['emisor'] = null;
             }
+            if(!array_key_exists ("edad" , $entradas)){
+                $entradas['edad'] = null;
+            }
             if(!array_key_exists ("nacimiento" , $entradas)){
                 $entradas['nacimiento'] = null;
             }
@@ -561,6 +573,9 @@ class TicketController extends Controller
             }
             if(!array_key_exists ("emisor" , $entradas)){
                 $entradas['emisor'] = $array['emisor'];
+            }
+            if(!array_key_exists ("edad" , $entradas)){
+                $entradas['edad'] = $array['edad'];
             }
             if(!array_key_exists ("nacimiento" , $entradas)){
                 $entradas['nacimiento'] = $array['nacimiento'];

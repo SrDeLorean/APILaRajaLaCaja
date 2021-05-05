@@ -20,8 +20,8 @@ class CreateDetalleTicketsTable extends Migration
             $table->bigInteger('producto')->unsigned();
             $table->foreign('producto')->references('id')->on('productos');
             $table->integer('cantidad');
-            $table->integer('precio');
-            $table->integer('total');
+            $table->integer('precioCompra');
+            $table->integer('precioVenta');
             $table->timestamps();
         });
     }

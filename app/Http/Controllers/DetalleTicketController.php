@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use Validator;
 use App\Models\DetalleTicket;
+use App\Models\Ticket;
+use App\Models\Producto;
 
 class DetalleTicketController extends Controller
 {
@@ -37,13 +39,13 @@ class DetalleTicketController extends Controller
      */
     public function store(Request $request)
     {
-        $entradas = $request->only('ticket', 'producto', 'cantidad', 'precio', 'total');
+        $entradas = $request->only('ticket', 'producto', 'cantidad', 'precioCompra', 'precioVenta');
         $validator = Validator::make($entradas, [
             'ticket' => ['numeric'],
             'producto' => ['numeric'],
             'cantidad' => ['numeric'],
-            'precio' => ['numeric'],
-            'total' => ['numeric']
+            'precioCompra' => ['numeric'],
+            'precioVenta' => ['numeric']
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -58,9 +60,19 @@ class DetalleTicketController extends Controller
             $detalleTicket->ticket=$entradas['ticket'];
             $detalleTicket->producto=$entradas['producto'];
             $detalleTicket->cantidad=$entradas['cantidad'];
-            $detalleTicket->precio=$entradas['precio'];
-            $detalleTicket->total=$entradas['total'];
+            $detalleTicket->precioCompra=$entradas['precioCompra'];
+            $detalleTicket->precioVenta=$entradas['precioVenta'];
+            
+            $ticket = Ticket::find($entradas['ticket']);
+            $ticket->cantidadProducto = $ticket->cantidadProducto + $entradas['cantidad'];
+            $ticket->precioCompra = $ticket->precioCompra + $entradas['precioCompra']*$entradas['cantidad'];
+            $ticket->precioVenta = $ticket->precioVenta + $entradas['precioVenta']*$entradas['cantidad'];
+
+            $producto = Producto::find($entradas['producto']);
+            $producto->cantidad = $producto->cantidad - $entradas['cantidad'];
             $detalleTicket->save();
+            $ticket->save();
+            $producto->save();
             return response()->json([
                 'success' => true,
                 'message' => "done",
@@ -107,13 +119,13 @@ class DetalleTicketController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $entradas = $request->only('ticket', 'producto', 'cantidad', 'precio', 'total');
+        $entradas = $request->only('ticket', 'producto', 'cantidad', 'precioCompra', 'precioVenta');
         $validator = Validator::make($entradas, [
             'ticket' => ['nullable', 'numeric'],
             'producto' => [' nullable', 'numeric'],
             'cantidad' => ['nullable', 'numeric'],
-            'precio' => [' nullable', 'numeric'],
-            'total' => [' nullable', 'numeric']
+            'precioCompra' => [' nullable', 'numeric'],
+            'precioVenta' => [' nullable', 'numeric']
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -132,12 +144,23 @@ class DetalleTicketController extends Controller
                 ], 409 );
             }
             $entradas = $this->rellenarDatosFaltantes($detalleTicket, $entradas);
+
+            $ticket = Ticket::find($entradas['ticket']);
+            $ticket->cantidadProducto = $ticket->cantidadProducto + $entradas['cantidad'] - $detalleTicket->cantidad;
+            $ticket->precioCompra = $ticket->precioCompra - ($detalleTicket->precioCompra*$detalleTicket->cantidad) + ($entradas['precioCompra']*$entradas['cantidad']);
+            $ticket->precioVenta = $ticket->precioVenta - ($detalleTicket->precioVenta*$detalleTicket->cantida) + $entradas['precioVenta']*$entradas['cantidad'];
+
+            $producto = Producto::find($entradas['producto']);
+            $producto->cantidad = $producto->cantidad - $entradas['cantidad'] + $detalleTicket->cantidad;
+
             $detalleTicket->ticket=$entradas['ticket'];
             $detalleTicket->producto=$entradas['producto'];
             $detalleTicket->cantidad=$entradas['cantidad'];
-            $detalleTicket->precio=$entradas['precio'];
-            $detalleTicket->total=$entradas['total'];
+            $detalleTicket->precioCompra=$entradas['precioCompra'];
+            $detalleTicket->precioVenta=$entradas['precioVenta'];
             $detalleTicket->save();
+            $ticket->save();
+            $producto->save();
             return response()->json([
                 'success' => true,
                 'message' => "done",
@@ -162,6 +185,14 @@ class DetalleTicketController extends Controller
     public function destroy($id){
         try{
             $detalleTicket = DetalleTicket::find($id);
+            $ticket = Ticket::find($detalleTicket->ticket);
+            $ticket->cantidadProducto = $ticket->cantidadProducto - $detalleTicket->cantidad;
+            $ticket->precioCompra = $ticket->precioCompra - ($detalleTicket->precioCompra*$detalleTicket->cantidad);
+            $ticket->precioVenta = $ticket->precioVenta - ($detalleTicket->precioVenta*$detalleTicket->cantidad);
+
+            $producto = Producto::find($detalleTicket->producto);
+            $producto->cantidad = $producto->cantidad + $detalleTicket->cantidad;
+
             if($detalleTicket==null){
                 return response()->json([
                     'success' => false,
@@ -170,6 +201,8 @@ class DetalleTicketController extends Controller
                 ], 409 );
             }
             $detalleTicket->delete();
+            $ticket->save();
+            $producto->save();
             return response()->json([
                 'success' => true,
                 'message' => "done",
@@ -200,11 +233,11 @@ class DetalleTicketController extends Controller
             if(!array_key_exists ("cantidad" , $entradas)){
                 $entradas['cantidad'] = null;
             }
-            if(!array_key_exists ("precio" , $entradas)){
-                $entradas['precio'] = null;
+            if(!array_key_exists ("precioCompra" , $entradas)){
+                $entradas['precioCompra'] = null;
             }
-            if(!array_key_exists ("total" , $entradas)){
-                $entradas['total'] = null;
+            if(!array_key_exists ("precioVenta" , $entradas)){
+                $entradas['precioVenta'] = null;
             }
         }else{
             if(!array_key_exists ("ticket" , $entradas)){
@@ -216,11 +249,11 @@ class DetalleTicketController extends Controller
             if(!array_key_exists ("cantidad" , $entradas)){
                 $entradas['cantidad'] = $array['cantidad'];
             }
-            if(!array_key_exists ("precio" , $entradas)){
-                $entradas['precio'] = $array['precio'];
+            if(!array_key_exists ("precioCompra" , $entradas)){
+                $entradas['precioCompra'] = $array['precioCompra'];
             }
-            if(!array_key_exists ("total" , $entradas)){
-                $entradas['total'] = $array['total'];
+            if(!array_key_exists ("precioVenta" , $entradas)){
+                $entradas['precioVenta'] = $array['precioVenta'];
             }
         }
         return $entradas;

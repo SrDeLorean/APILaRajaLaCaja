@@ -18,10 +18,11 @@ class CreateTicketsTable extends Migration
             $table->string('email');
             $table->string('receptor');
             $table->string('emisor');
-            $table->date('nacimiento');
+            $table->integer('edad')->nullable();
+            $table->date('nacimiento')->nullable();
             $table->string('color');
             $table->string('excepcion');
-            $table->boolean('pyme');
+            $table->string('pyme');
             $table->string('foto')->nullable();
             $table->string('mensaje');
             $table->date('entrega');
@@ -29,7 +30,8 @@ class CreateTicketsTable extends Migration
             $table->string('comuna');
             $table->string('direccion');
             $table->string('telefono');
-            $table->integer('valor');
+            $table->integer('precioCompra');
+            $table->integer('precioVenta');
             $table->integer('cantidadProducto');
 
             $table->bigInteger('motivo')->unsigned();

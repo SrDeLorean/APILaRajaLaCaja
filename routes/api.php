@@ -45,7 +45,6 @@ Route::group([
 
 Route::resource('menus', MenuController::class);
 Route::resource('restaurantes', RestauranteController::class);
-
 Route::resource('productos', ProductoController::class);
 Route::resource('categorias', CategoriaController::class);
 Route::resource('referencias', ReferenciaController::class);
