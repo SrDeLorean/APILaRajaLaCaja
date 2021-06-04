@@ -156,6 +156,7 @@ class TicketController extends Controller
             $ticket->precioVenta=0;
             $ticket->tipoPersona=$entradas['tipoPersona'];
             $ticket->save();
+         
 
             $listaProductos= [];
 
@@ -193,23 +194,22 @@ class TicketController extends Controller
                     }
                 }
             }
-            foreach($entradas['brindis'] as $brindi){
-                $ticketBrindi = new TicketBrindi();
-                $ticketBrindi->ticket = $ticket->id;
-                $ticketBrindi->brindi = $brindi;
-                $ticketBrindi->save();
+            $ticketBrindi = new TicketBrindi();
+            $ticketBrindi->ticket = $ticket->id;
+            $ticketBrindi->brindi = $entradas['brindis'];
+            $ticketBrindi->save();
 
-                $productos = ProductoBrindi::where('brindi', $brindi)->get();
-                if(count($productos)!=0){
-                    foreach($productos as $producto){
-                        if(array_key_exists($producto->producto, $listaProductos)){
-                            $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
-                        }else{
-                            $listaProductos[$producto->producto]= 1;
-                        }
+            $productos = ProductoBrindi::where('brindi', $entradas['brindis'])->get();
+            if(count($productos)!=0){
+                foreach($productos as $producto){
+                    if(array_key_exists($producto->producto, $listaProductos)){
+                        $listaProductos[$producto->producto]= $listaProductos[$producto->producto]+1;
+                    }else{
+                        $listaProductos[$producto->producto]= 1;
                     }
                 }
             }
+            
             foreach($entradas['preferencias'] as $preferencia){
                 $ticketPreferencia = new TicketPreferencia();
                 $ticketPreferencia->ticket = $ticket->id;
@@ -248,10 +248,66 @@ class TicketController extends Controller
             $idProductos = array_keys($listaProductos);
             $caja = TipoCaja::where('id', $entradas['tipoCaja'])->get();
             $total = 0;
-            $cantidad = 0;
+            $cantidad = 1;
             $cantidadTotal = 0;
             $totalVenta = 0;
             $totalCompra = 0;
+
+            $dato = Producto::where('id', 1)->get();
+            $detalleTicket = new DetalleTicket();
+            $detalleTicket->ticket = $ticket->id;
+            $detalleTicket->producto = $dato[0]->id;
+            $detalleTicket->cantidad = $cantidad;
+            $detalleTicket->precioCompra = $dato[0]->precioCompra;
+            $detalleTicket->precioVenta = $dato[0]->precioVenta;
+            $totalVenta= $totalVenta+$dato[0]->precioVenta*$cantidad;
+            $totalCompra = $totalCompra+$dato[0]->precioCompra*$cantidad;
+            $cantidadTotal = $cantidadTotal+ $cantidad;
+            $detalleTicket->save();    
+            $dato[0]->cantidad=$dato[0]->cantidad-$cantidad;
+            $dato[0]->save();
+
+            $dato = Producto::where('id', 3)->get();
+            $detalleTicket = new DetalleTicket();
+            $detalleTicket->ticket = $ticket->id;
+            $detalleTicket->producto = $dato[0]->id;
+            $detalleTicket->cantidad = $cantidad;
+            $detalleTicket->precioCompra = $dato[0]->precioCompra;
+            $detalleTicket->precioVenta = $dato[0]->precioVenta;
+            $totalVenta= $totalVenta+$dato[0]->precioVenta*$cantidad;
+            $totalCompra = $totalCompra+$dato[0]->precioCompra*$cantidad;
+            $cantidadTotal = $cantidadTotal+ $cantidad;
+            $detalleTicket->save();    
+            $dato[0]->cantidad=$dato[0]->cantidad-$cantidad;
+            $dato[0]->save();
+
+            $dato = Producto::where('id', 5)->get();
+            $detalleTicket = new DetalleTicket();
+            $detalleTicket->ticket = $ticket->id;
+            $detalleTicket->producto = $dato[0]->id;
+            $detalleTicket->cantidad = $cantidad;
+            $detalleTicket->precioCompra = $dato[0]->precioCompra;
+            $detalleTicket->precioVenta = $dato[0]->precioVenta;
+            $totalVenta= $totalVenta+$dato[0]->precioVenta*$cantidad;
+            $totalCompra = $totalCompra+$dato[0]->precioCompra*$cantidad;
+            $cantidadTotal = $cantidadTotal+ $cantidad;
+            $detalleTicket->save();    
+            $dato[0]->cantidad=$dato[0]->cantidad-$cantidad;
+            $dato[0]->save();
+
+            $dato = Producto::where('id', 6)->get();
+            $detalleTicket = new DetalleTicket();
+            $detalleTicket->ticket = $ticket->id;
+            $detalleTicket->producto = $dato[0]->id;
+            $detalleTicket->cantidad = $cantidad;
+            $detalleTicket->precioCompra = $dato[0]->precioCompra;
+            $detalleTicket->precioVenta = $dato[0]->precioVenta;
+            $totalVenta= $totalVenta+$dato[0]->precioVenta*$cantidad;
+            $totalCompra = $totalCompra+$dato[0]->precioCompra*$cantidad;
+            $cantidadTotal = $cantidadTotal+ $cantidad;
+            $detalleTicket->save();    
+            $dato[0]->cantidad=$dato[0]->cantidad-$cantidad;
+            $dato[0]->save();
             
             foreach($idProductos as $producto){
                 $dato = Producto::where('id', $producto)->get();
